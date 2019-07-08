@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>信息提取系统登陆</title>
+    <link rel="stylesheet" href="static/plugins/layui/css/layui.css">
+    <link href="static/css/reset.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        body{
+            background: url("static/images/login_bg.jpg") no-repeat;
+            background-size:100% 100% ;
+            background-size: cover;
+        }
+        .login{
+            width: 440px;
+            height: 500px;
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .login img{
+            width: 266px;
+            height:255px;
+            margin: 0 auto;
+        }
+        .user_name{
+            width: 375px;
+            height: 60px;
+            border-radius: 30px;
+            background: #1f6aa7;
+            border: none;
+            margin: 0 auto;
+            margin-top: 30px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+        }
+        .user_password{
+            width: 375px;
+            height: 60px;
+            border-radius: 30px;
+            background: #1f6aa7;
+            border: none;
+            margin: 0 auto;
+            margin-top: 20px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+        }
+        .submit{
+            width: 375px;
+            height: 50px;
+            margin: 0 auto;
+            margin-top: 20px;
+            background: #1f6aa7;
+            border-radius: 25px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login">
+        <img src="static/images/logo.png">
+        <form class="layui-form"  id="From" method="post" th:action="@{/login}" >
+        <input type="text" name="user_name"  lay-verify="user_name" placeholder="请输入用户名或手机号" autocomplete="off" class="layui-input user_name">
+        <input type="password" name="user_password"  lay-verify="user_password" placeholder="请输入密码" autocomplete="off" class="layui-input user_password">
+            <button class="layui-btn submit" lay-submit="" lay-filter="loginSubmit">登陆</button>
+        </form>
+    </div>
+</body>
+
+<script src="static/js/jquery.min.js"></script>
+<script src="static/plugins/layui/layui.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var context = /*[[@{/}]]*/;
+    /*]]>*/
+</script>
+<script>
+    layui.use(['layer', 'form', 'element'], function(){
+        var form = layui.form;
+        //自定义验证规则
+        form.verify({
+            user_name: function(value){
+                if(value==null || value==''){
+                    return '用户名不能为空';
+                }
+            }
+            ,user_password: [
+                /^[\S]{6,12}$/
+                ,'密码必须6到12位，且不能出现空格'
+            ]
+        });
+        //监听提交
+        form.on('submit(loginSubmit)', function(data){
+            $.ajax({
+                url: data.form.action,
+                type: data.form.method,
+                data: $(data.form).serialize(),
+                success: function (msg) {
+                    console.log(msg)
+                    if (msg == "success") {
+                        console.log("登陆成功")
+                        console.log(context)
+                        location.href= context + "index"
+                    }else{
+                        layer.msg(msg);
+                    }
+                }
+            });
+            return false;
+        });
+    });
+
+    $(function () {
+        $(".user_password").keyup(function (event) {
+            if(event.keyCode == 13){
+                $(".submit").click()
+            }
+        })
+    })
+
+</script>
+</html>

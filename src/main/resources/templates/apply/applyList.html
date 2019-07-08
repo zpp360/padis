@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>信息列表</title>
+    <link rel="stylesheet" th:href="@{/static/plugins/layui/css/layui.css}">
+    <link th:href="@{/static/css/reset.css}" rel="stylesheet" type="text/css" />
+    <script th:src="@{/static/plugins/layui/layui.js}"></script>
+    <script th:inline="javascript">
+        var context = [[@{/}]];
+    </script>
+    <style type="text/css">
+
+    </style>
+</head>
+<body >
+<table class="layui-hide" id="table" lay-filter="table"></table>
+
+<script type="text/html" id="toolbar">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="addApply">新增提取</button>
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中数目</button>
+        <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+<script>
+    layui.use('table', function(){
+        var table = layui.table;
+
+        table.render({
+            elem: '#table'
+            ,url: context + '/apply/applyListData'
+            ,toolbar: '#toolbar'
+            ,title: '用户数据表'
+            ,cols: [
+                [
+                    {type: 'checkbox', fixed: 'left'}
+                    ,{field:'apply_id', title:'ID', fixed: 'left'}
+                    ,{field:'apply_name', title:'提取名称',  edit: 'text'}
+                    ,{field:'apply_user', title:'提取人',  edit: 'text'}
+                    ,{field:'user_number', title:'警员编号',  edit: 'text'}
+                    ,{field:'status', title:'提取状态'}
+                    ,{field:'insert_time', title:'提取时间', sort: true}
+                    ,{fixed: 'right', title:'操作', toolbar: '#barDemo', minWidth:150}
+                 ]
+            ]
+            ,page: true
+        });
+
+        //头工具栏事件
+        table.on('toolbar(table)', function(obj){
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch(obj.event){
+                case 'addApply':
+                    //弹框添加
+                    layer.
+                    break;
+                case 'getCheckLength':
+                    var data = checkStatus.data;
+                    layer.msg('选中了：'+ data.length + ' 个');
+                    break;
+                case 'isAll':
+                    layer.msg(checkStatus.isAll ? '全选': '未全选');
+                    break;
+            };
+        });
+
+        //监听行工具事件
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            //console.log(obj)
+            if(obj.event === 'del'){
+                layer.confirm('真的删除行么', function(index){
+                    obj.del();
+                    layer.close(index);
+                });
+            } else if(obj.event === 'edit'){
+                layer.prompt({
+                    formType: 2
+                    ,value: data.email
+                }, function(value, index){
+                    obj.update({
+                        email: value
+                    });
+                    layer.close(index);
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

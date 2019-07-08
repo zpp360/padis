@@ -1,0 +1,47 @@
+#服务路径
+server:
+  servlet.context-path: /padis
+#端口
+  port: 8080
+#编码
+  tomcat.uri-encoding: utf-8
+#session过期时间
+  servlet:
+    session:
+      timeout: 3600
+
+
+
+#数据库连接
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/padis?useUnicode=true&characterEncoding=utf8&characterSetResults=utf8&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+
+#Thymeleaf
+  thymeleaf:
+    prefix: classpath:/templates
+    suffix: .html
+    mode: HTML5
+    encoding: UTF-8
+    cache: false
+  resources:
+    static-locations: classpath:/resources/,classpath:/static/
+  mvc:
+    #访问路径
+    static-path-pattern: /static/**
+
+
+#mybaties设置
+mybatis:
+  type-aliases-package: com.zhengpp.padis.entity
+  config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mybatis/*.xml
+
+
+
+
+
+

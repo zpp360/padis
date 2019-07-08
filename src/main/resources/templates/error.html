@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>认证失败</title>
+    <link rel="stylesheet" href="static/plugins/layui/css/layui.css">
+    <link href="static/css/reset.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+
+    </style>
+</head>
+<body>
+认证失败
+</body>
+
+<script src="static/js/jquery.min.js"></script>
+<script src="static/plugins/layui/layui.js"></script>
+<script>
+    layui.use(['layer', 'form', 'element'], function(){
+        var form = layui.form;
+        //自定义验证规则
+        form.verify({
+            user_name: function(value){
+                if(value==null || value==''){
+                    return '用户名不能为空';
+                }
+            }
+            ,user_password: [
+                /^[\S]{6,12}$/
+                ,'密码必须6到12位，且不能出现空格'
+            ]
+        });
+        //监听提交
+        form.on('submit(loginSubmit)', function(data){
+            console.log("监听")
+            form.submit();
+        });
+    });
+
+    $(function () {
+        $(".user_password").keyup(function (event) {
+            if(event.keyCode == 13){
+                $(".submit").click()
+            }
+        })
+    })
+
+</script>
+</html>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserMapper">
+    <select id="findByUserName" parameterType="java.lang.String" resultType="pd">
+        select
+          *
+        from sys_user t
+        where t.user_name = #{userName}
+        or t.user_phone = #{userName}
+    </select>
+
+    <select id="findById" parameterType="java.lang.String" resultType="pd">
+        select
+          *
+        from sys_user t
+        where t.user_id = #{userId}
+    </select>
+
+    <update id="updatePassword" parameterType="pd">
+        update sys_user
+          set user_password = #{user_password}
+        where user_id = #{user_id}
+    </update>
+</mapper>
