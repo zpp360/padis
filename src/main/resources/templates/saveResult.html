@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>认证失败</title>
+    <link rel="stylesheet" th:href="@{/static/plugins/layui/css/layui.css}">
+    <link th:href="@{/static/css/reset.css}" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+
+    </style>
+</head>
+<body>
+</body>
+
+<script src="static/js/jquery.min.js"></script>
+<script th:src="@{/static/plugins/layui/layui.js}"></script>
+<script>
+    //当你在iframe页面关闭自身时
+    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+    parent.layer.close(index); //再执行关闭
+</script>
+</html>

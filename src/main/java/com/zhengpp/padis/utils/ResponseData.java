@@ -28,6 +28,8 @@ public class ResponseData {
 
     private List<PageData> data;
 
+    private Map<String,Object> map = new HashMap<>();
+
     public String getCode() {
         return code;
     }
@@ -58,5 +60,13 @@ public class ResponseData {
 
     public void setData(List<PageData> data) {
         this.data = data;
+    }
+
+    public Map<String, Object> getMap() {
+        return map;
+    }
+
+    public void setMap(Map<String, Object> map) {
+        this.map = map;
     }
 }

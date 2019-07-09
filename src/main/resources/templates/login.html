@@ -78,6 +78,10 @@
     /*]]>*/
 </script>
 <script>
+    //解决登录失效后iframe嵌套
+    if(window !=top){
+        top.location.href = location.href;
+     }
     layui.use(['layer', 'form', 'element'], function(){
         var form = layui.form;
         //自定义验证规则

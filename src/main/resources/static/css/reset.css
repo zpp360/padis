@@ -138,3 +138,8 @@ ul, ol {
 :-ms-input-placeholder { /* Internet Explorer 10+ */
     color: #FFFFFF;
 }
+
+
+.layui-form-required{
+    color: red;
+}

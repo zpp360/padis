@@ -12,6 +12,8 @@ server:
 
 
 
+
+
 #数据库连接
 spring:
   datasource:
@@ -32,6 +34,11 @@ spring:
   mvc:
     #访问路径
     static-path-pattern: /static/**
+  #上传限制
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
 
 
 #mybaties设置
@@ -39,6 +46,7 @@ mybatis:
   type-aliases-package: com.zhengpp.padis.entity
   config-location: classpath:mybatis-config.xml
   mapper-locations: classpath:mybatis/*.xml
+
 
 
 

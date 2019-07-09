@@ -20,8 +20,6 @@
 <script type="text/html" id="toolbar">
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm" lay-event="addApply">新增提取</button>
-        <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中数目</button>
-        <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
     </div>
 </script>
 
@@ -61,7 +59,18 @@
             switch(obj.event){
                 case 'addApply':
                     //弹框添加
-                    layer.
+                    layer.open({
+                        type: 2,
+                        title: "新增提取",
+                        shade: [0],
+                        area: ['670px', '600px'],
+                        offset: '2px',
+                        anim: 2,
+                        content: [context + 'apply/toAddApply', 'no'], //iframe的url，no代表不显示滚动条
+                        end: function(){ //此处用于演示
+                            location.reload()
+                        }
+                    });
                     break;
                 case 'getCheckLength':
                     var data = checkStatus.data;
