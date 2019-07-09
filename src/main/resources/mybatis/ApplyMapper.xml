@@ -7,9 +7,13 @@
           *
         from m_apply t
         where t.del_flag = '0'
+        <if test="user_role=='2'">
+            and t.apply_status in ('1','2')
+        </if>
         <if test="insert_user != null and insert_user != ''">
             and t.insert_user = #{insert_user}
         </if>
+        order by t.apply_status asc,t.update_time desc
     </select>
 
     <select id="countListPage" parameterType="pd" resultType="java.lang.Long">
@@ -21,4 +25,49 @@
             and t.insert_user = #{insert_user}
         </if>
     </select>
+
+    <insert id="saveApply" parameterType="pd">
+        insert into m_apply(
+          apply_id,
+          apply_name,
+          apply_user,
+          user_number,
+          certify_file_name,
+          certify_file_path,
+          apply_desc,
+          apply_file_name,
+          apply_file_path,
+          apply_status,
+          del_flag,
+          insert_user,
+          insert_time,
+          update_user,
+          update_time
+        )values(
+          #{apply_id},
+          #{apply_name},
+          #{apply_user},
+          #{user_number},
+          #{certify_file_name},
+          #{certify_file_path},
+          #{apply_desc},
+          #{apply_file_name},
+          #{apply_file_path},
+          #{apply_status},
+          '0',
+          #{insert_user},
+          now(),
+          #{update_user},
+          now()
+        )
+    </insert>
+
+    <update id="dealApply" parameterType="pd">
+        update m_apply set
+          apply_deal_file_name = #{apply_deal_file_name},
+          apply_deal_file_path = #{apply_deal_file_path},
+          apply_status = '2'
+        where apply_id = #{apply_id}
+
+    </update>
 </mapper>

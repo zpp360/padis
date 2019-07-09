@@ -32,4 +32,20 @@ public class ApplyService {
     public Long countListPage(PageData pd) throws Exception {
         return (Long) dao.findForObject("ApplyMapper.countListPage",pd);
     }
+
+    /**
+     * 保存提取
+     * @param pd
+     */
+    public void saveApply(PageData pd) throws Exception {
+        dao.save("ApplyMapper.saveApply",pd);
+    }
+
+    /**
+     *  任务处理
+     * @param pd
+     */
+    public void dealApply(PageData pd) throws Exception {
+        dao.update("ApplyMapper.dealApply",pd);
+    }
 }

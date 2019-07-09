@@ -37,6 +37,9 @@ public class ApplyController extends BaseController{
 
     @RequestMapping(value = "/applyList")
     public ModelAndView applyList(ModelAndView mv){
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        mv.addObject("user",user);
         mv.setViewName("/apply/applyList");
         return mv;
     }
@@ -51,13 +54,14 @@ public class ApplyController extends BaseController{
         PageData pd = this.getPageData();
         Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
-        if("1".equals(user.getUserRoele())){
+        if("1".equals(user.getUserRole())){
             //公安列表，只查看自己发布的
+            pd.put("user_role","1");
             pd.put("insert_user",user.getUserId());
         }
-        if("2".equals(user.getUserRoele())){
-            //移动，查看所有数据
-
+        if("2".equals(user.getUserRole())){
+            //移动，查看所有数据,不看apply_status为1的数据
+            pd.put("user_role","2");
         }
         List<PageData> list = applyService.listPage(pd);
         Long count = applyService.countListPage(pd);
@@ -85,11 +89,41 @@ public class ApplyController extends BaseController{
      * @param mv
      * @return
      */
-    public ModelAndView saveApply(ModelAndView mv){
+    @RequestMapping(value = "/saveApply")
+    public ModelAndView saveApply(ModelAndView mv) throws Exception {
         PageData pd = this.getPageData();
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        pd.put("apply_id",this.get32UUID());
+        pd.put("insert_user",user.getUserId());
+        pd.put("update_user",user.getUserId());
+        applyService.saveApply(pd);
+        mv.setViewName("/saveResult");
+        return mv;
+    }
 
+    /**
+     * 任务处理页面
+     * @param mv
+     * @return
+     */
+    @RequestMapping(value = "/toDealApply")
+    public ModelAndView toDealApply(ModelAndView mv){
+        PageData pd = this.getPageData();
+        mv.addObject("pd",pd);
+        mv.setViewName("/apply/applyDeal");
+        return mv;
+    }
 
-
+    /**
+     * 更新任务处理
+     * @param mv
+     * @return
+     */
+    @RequestMapping(value = "/dealApply")
+    public ModelAndView dealApply(ModelAndView mv) throws Exception {
+        PageData pd = this.getPageData();
+        applyService.dealApply(pd);
         mv.setViewName("/saveResult");
         return mv;
     }
@@ -220,6 +254,73 @@ public class ApplyController extends BaseController{
 
                 data.getMap().put("apply_file_name",orgFileName);
                 data.getMap().put("apply_file_path",imgPath);
+                return data;
+            }
+        }
+        return data;
+    }
+
+
+    /**
+     * 上传描述文件
+     * @param request
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping("/uploadDeal")
+    @ResponseBody
+    public ResponseData uploadDeal(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ResponseData data = new ResponseData();
+        // 图片路径
+        String imgPath = "";
+        // 图片名称
+        String orgFileName = null;
+        // 图片后缀
+        String fileExt = null;
+        // 文件格式错误信息
+        String fileExtError = null;
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+
+        response.setContentType("text/html");
+        response.setCharacterEncoding("UTF-8");
+        for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+            // 上传文件
+            MultipartFile mf = entity.getValue();
+            // 获取图片大小
+            int picSize = Integer.parseInt(String.valueOf(mf.getSize()));
+            // 获取原文件名
+            orgFileName = mf.getOriginalFilename();
+            String fileName =  mf.getOriginalFilename();
+            // 获取图片后缀
+            fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+            if (!Const.DOCX.equals(fileExt) && !Const.DOC.equals(fileExt) && !Const.XLSX.equals(fileExt) && !Const.XLS.equals(fileExt)) {
+                fileExtError = "nonsupport_type";
+                data.setCode("1");
+                data.setMsg(fileExtError);
+                return data;
+            } else if (picSize > Const.ONE_HUNDRED_MB) {
+                fileExtError = "out_size";
+                data.setCode("1");
+                data.setMsg(fileExtError);
+                return data;
+            } else {
+                // 对原文件名进行重命名
+                fileName = this.get32UUID() + "." + fileExt;
+                // 返回图片路径
+                String rootPath = request.getServletContext().getRealPath("/");
+                imgPath = Const.APPLY_DEAL_PATH + fileName;
+                File dic = new File(rootPath + Const.APPLY_DEAL_PATH);
+                if(!dic.exists()){
+                    dic.mkdirs();
+                }
+                //上传至服务器
+                String realPath = rootPath + imgPath;
+                mf.transferTo(new File(realPath));
+
+                data.getMap().put("apply_deal_file_name",orgFileName);
+                data.getMap().put("apply_deal_file_path",imgPath);
                 return data;
             }
         }

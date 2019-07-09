@@ -53,7 +53,7 @@ public class CustomRealm extends AuthorizingRealm {
             user.setUserId(pd.getString("user_id"));
             user.setUserName(pd.getString("user_name"));
             user.setUserPhone(pd.getString("user_phone"));
-            user.setUserRoele(pd.getString("user_role"));
+            user.setUserRole(pd.getString("user_role"));
             user.setUserUnit(pd.getString("user_unit"));
             user.setUserNumber(pd.getString("user_number"));
         }

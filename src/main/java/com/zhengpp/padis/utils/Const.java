@@ -24,7 +24,9 @@ public class Const {
      */
     public static final String APPLY_DESC_PATH = "/upload/desc/";
 
-
-
+    /**
+     * 任务处理文件存储路径
+     */
+    public static final String APPLY_DEAL_PATH = "/upload/deal/";
 
 }

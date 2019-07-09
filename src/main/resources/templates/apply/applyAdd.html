@@ -10,6 +10,9 @@
         .layui-input{
             width: 200px;
         }
+        .layui-textarea{
+            width: 520px;
+        }
     </style>
 </head>
 <body style="margin-top: 30px;">
@@ -48,7 +51,7 @@
     <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label"><span class="layui-form-required">*</span>电子公函</label>
-            <input type="text" name="certify_file_name" maxlength="50" required disabled  lay-verify="certify_file_name" placeholder="请上传电子公函" autocomplete="off" class="layui-input">
+            <input type="text" name="certify_file_name" maxlength="50" required readonly="readonly"  lay-verify="certify_file_name" placeholder="请上传电子公函" autocomplete="off" class="layui-input">
         </div>
         <div class="layui-inline">
             <input type="hidden" name="certify_file_path" lay-verify="certify_file_path"/>
@@ -70,7 +73,7 @@
     <div class="layui-form-item apply_file_upload" style="display: none">
         <div class="layui-inline">
             <label class="layui-form-label"><span class="layui-form-required">*</span>描述文件</label>
-            <input type="text" name="apply_file_name" maxlength="50" required disabled  lay-verify="apply_file_name" placeholder="请上传描述文件" autocomplete="off" class="layui-input">
+            <input type="text" name="apply_file_name" maxlength="50" required readonly="readonly"  lay-verify="apply_file_name" placeholder="请上传描述文件" autocomplete="off" class="layui-input">
         </div>
         <div class="layui-inline">
             <input type="hidden" name="apply_file_path" lay-verify="apply_file_path"/>
@@ -80,7 +83,7 @@
     </div>
     <div class="layui-form-item">
         <div class="layui-input-block">
-            <input type="hidden" name="status">
+            <input type="hidden" name="apply_status">
             <button class="layui-btn submit" lay-submit lay-filter="saveAndApply">保存并提取</button>
             <button class="layui-btn submit" lay-submit lay-filter="save">仅保存</button>
             <button type="button" class="layui-btn layui-btn-primary close">关闭</button>
@@ -97,6 +100,7 @@
     layui.use(['jquery','layer', 'form', 'element','upload'], function(){
         var form = layui.form;
         var upload = layui.upload;
+        var $ = jQuery = layui.$;
 
         //上传公函
         upload.render({
@@ -152,7 +156,6 @@
             }
         });
 
-        var $ = jQuery = layui.$;
         //自定义验证规则
         form.verify({
             apply_name: function(value){
@@ -206,14 +209,15 @@
         //监听保存并提取提交
         form.on('submit(saveAndApply)', function(data){
             console.log("监听保存并提取")
-            $("input[name='status']").val("1")
+            $("input[name='apply_status']").val("1")
             form.submit();
         });
         //监听仅保存提交
         form.on('submit(save)', function(data){
             console.log("监听仅保存")
-            $("input[name='status']").val("0")
+            $("input[name='apply_status']").val("0")
             form.submit();
+            return true;
         });
 
         //监听指定开关

@@ -19,7 +19,9 @@
 
 <script type="text/html" id="toolbar">
     <div class="layui-btn-container">
-        <button class="layui-btn layui-btn-sm" lay-event="addApply">新增提取</button>
+        <th:block th:if="${user.userRole eq '1'}">
+            <button class="layui-btn layui-btn-sm" lay-event="addApply">新增提取</button>
+        </th:block>
     </div>
 </script>
 
@@ -45,7 +47,17 @@
                     ,{field:'apply_name', title:'提取名称',  edit: 'text'}
                     ,{field:'apply_user', title:'提取人',  edit: 'text'}
                     ,{field:'user_number', title:'警员编号',  edit: 'text'}
-                    ,{field:'status', title:'提取状态'}
+                    ,{field:'apply_status', title:'提取状态', align:'center',  templet: function (res) {
+                        if(res.apply_status == '0'){
+                            return "保存"
+                        }
+                        if(res.apply_status=='1'){
+                            return "<button class='layui-btn layui-btn-normal layui-btn-xs apply_status' lay-event='apply_status'>待处理</button>"
+                        }
+                        if(res.apply_status=='2'){
+                            return "已处理"
+                        }
+                    }}
                     ,{field:'insert_time', title:'提取时间', sort: true}
                     ,{fixed: 'right', title:'操作', toolbar: '#barDemo', minWidth:150}
                  ]
@@ -64,7 +76,6 @@
                         title: "新增提取",
                         shade: [0],
                         area: ['670px', '600px'],
-                        offset: '2px',
                         anim: 2,
                         content: [context + 'apply/toAddApply', 'no'], //iframe的url，no代表不显示滚动条
                         end: function(){ //此处用于演示
@@ -83,9 +94,8 @@
         });
 
         //监听行工具事件
-        table.on('tool(test)', function(obj){
+        table.on('tool(table)', function(obj){
             var data = obj.data;
-            //console.log(obj)
             if(obj.event === 'del'){
                 layer.confirm('真的删除行么', function(index){
                     obj.del();
@@ -100,6 +110,20 @@
                         email: value
                     });
                     layer.close(index);
+                });
+            }else if(obj.event === 'apply_status'){
+                //处理任务。弹出框，上传文件
+                layer.open({
+                    type: 2,
+                    title: "处理任务",
+                    shade: [0],
+                    area: ['400px', '300px'],
+                    offset: '2px',
+                    anim: 2,
+                    content: [context + 'apply/toDealApply?apply_id='+data.apply_id, 'no'], //iframe的url，no代表不显示滚动条
+                    end: function(){ //此处用于演示
+                        location.reload()
+                    }
                 });
             }
         });

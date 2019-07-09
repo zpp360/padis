@@ -15,7 +15,7 @@ public class User implements Serializable{
 
     private String userPhone;
 
-    private String userRoele; //1公安 2移动
+    private String userRole; //1公安 2移动
 
     private String userUnit;
 
@@ -45,12 +45,12 @@ public class User implements Serializable{
         this.userPhone = userPhone;
     }
 
-    public String getUserRoele() {
-        return userRoele;
+    public String getUserRole() {
+        return userRole;
     }
 
-    public void setUserRoele(String userRoele) {
-        this.userRoele = userRoele;
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
     }
 
     public String getUserUnit() {
@@ -75,7 +75,7 @@ public class User implements Serializable{
                 "userId='" + userId + '\'' +
                 ", userName='" + userName + '\'' +
                 ", userPhone='" + userPhone + '\'' +
-                ", userRoele='" + userRoele + '\'' +
+                ", userRole='" + userRole + '\'' +
                 ", userUnit='" + userUnit + '\'' +
                 ", userNumber='" + userNumber + '\'' +
                 '}';
