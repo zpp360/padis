@@ -1,18 +1,17 @@
 package com.zhengpp.padis.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.zhengpp.padis.base.BaseController;
 import com.zhengpp.padis.entity.PageData;
 import com.zhengpp.padis.entity.User;
 import com.zhengpp.padis.service.ApplyService;
 import com.zhengpp.padis.utils.Const;
 import com.zhengpp.padis.utils.ResponseData;
-import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -126,6 +125,22 @@ public class ApplyController extends BaseController{
         applyService.dealApply(pd);
         mv.setViewName("/saveResult");
         return mv;
+    }
+
+    /**
+     * 删除提取
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("/delApply")
+    @ResponseBody
+    public String delApply() throws Exception {
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        PageData pd = this.getPageData();
+        pd.put("update_user",user.getUserId());
+        applyService.delApply(pd);
+        return "success";
     }
 
     /**

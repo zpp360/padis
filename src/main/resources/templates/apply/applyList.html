@@ -30,10 +30,14 @@
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
+<script th:inline="javascript">
+    var userRole = [[${user.userRole}]]
+</script>
 
 <script>
     layui.use('table', function(){
         var table = layui.table;
+        var $ = jQuery = layui.$;
 
         table.render({
             elem: '#table'
@@ -49,17 +53,30 @@
                     ,{field:'user_number', title:'警员编号',  edit: 'text'}
                     ,{field:'apply_status', title:'提取状态', align:'center',  templet: function (res) {
                         if(res.apply_status == '0'){
-                            return "保存"
+                            return "未发送"
                         }
                         if(res.apply_status=='1'){
-                            return "<button class='layui-btn layui-btn-normal layui-btn-xs apply_status' lay-event='apply_status'>待处理</button>"
+                            if(userRole==1){
+                                return "<button class='layui-btn layui-btn-primary layui-btn-xs'>待处理</button>"
+                            }
+                            if(userRole==2){
+                                return "<button class='layui-btn layui-btn-normal layui-btn-xs' lay-event='apply_status'>待处理</button>"
+                            }
                         }
                         if(res.apply_status=='2'){
                             return "已处理"
                         }
                     }}
                     ,{field:'insert_time', title:'提取时间', sort: true}
-                    ,{fixed: 'right', title:'操作', toolbar: '#barDemo', minWidth:150}
+                    ,{fixed: 'right', title:'操作',  minWidth:150, templet:function (res) {
+                        var delBtn = '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>';
+                        var editBtn = '<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>';
+                        if(userRole=='1' && res.apply_status == '0'){
+                            return editBtn + delBtn
+                        }else{
+                            return '<a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="">编辑</a>' + delBtn
+                        }
+                    }}
                  ]
             ]
             ,page: true
@@ -97,8 +114,15 @@
         table.on('tool(table)', function(obj){
             var data = obj.data;
             if(obj.event === 'del'){
-                layer.confirm('真的删除行么', function(index){
-                    obj.del();
+                layer.confirm('确定要删除此行数据吗？', function(index){
+                    $.ajax({
+                        url: context + "apply/delApply",
+                        type: "post",
+                        data: {"apply_id":data.apply_id},
+                        success: function (msg) {
+                            layer.msg("删除成功");
+                        }
+                    });
                     layer.close(index);
                 });
             } else if(obj.event === 'edit'){

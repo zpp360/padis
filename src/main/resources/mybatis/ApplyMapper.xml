@@ -70,4 +70,12 @@
         where apply_id = #{apply_id}
 
     </update>
+
+    <update id="delApply" parameterType="pd">
+        update m_apply set
+          del_flag = '1',
+          update_user = #{update_user},
+          update_time = now()
+        where apply_id = #{apply_id}
+    </update>
 </mapper>

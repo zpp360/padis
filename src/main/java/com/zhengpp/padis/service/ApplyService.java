@@ -48,4 +48,12 @@ public class ApplyService {
     public void dealApply(PageData pd) throws Exception {
         dao.update("ApplyMapper.dealApply",pd);
     }
+
+    /**
+     * 删除提取
+     * @param pd
+     */
+    public void delApply(PageData pd) throws Exception {
+        dao.update("ApplyMapper.delApply",pd);
+    }
 }
