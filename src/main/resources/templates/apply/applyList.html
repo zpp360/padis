@@ -25,11 +25,6 @@
     </div>
 </script>
 
-<script type="text/html" id="barDemo">
-    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
-</script>
-
 <script th:inline="javascript">
     var userRole = [[${user.userRole}]]
 </script>
@@ -47,13 +42,19 @@
             ,cols: [
                 [
                     {type: 'checkbox', fixed: 'left'}
-                    ,{field:'apply_id', title:'ID', fixed: 'left'}
-                    ,{field:'apply_name', title:'提取名称',  edit: 'text'}
-                    ,{field:'apply_user', title:'提取人',  edit: 'text'}
-                    ,{field:'user_number', title:'警员编号',  edit: 'text'}
+                    ,{field:'apply_name', title:'提取名称'}
+                    ,{field:'apply_user', title:'提取人'}
+                    ,{field:'user_number', title:'警员编号'}
+                    ,{field:'apply_number', title:'公函编号'}
+                    ,{field:'certify_file_name', title:'电子公函', align:'center', templet: function (res) {
+                        if(res.certify_file_name!=''){
+                            return "<button class='layui-btn layui-btn-warm layui-btn-xs' lay-event='download_certify'>下载</button>"
+                        }
+                        return ''
+                    }}
                     ,{field:'apply_status', title:'提取状态', align:'center',  templet: function (res) {
                         if(res.apply_status == '0'){
-                            return "未发送"
+                            return "<button class='layui-btn layui-btn-normal layui-btn-xs' lay-event='apply_send'>待发送</button>"
                         }
                         if(res.apply_status=='1'){
                             if(userRole==1){
@@ -64,17 +65,21 @@
                             }
                         }
                         if(res.apply_status=='2'){
-                            return "已处理"
+                            return "<button class='layui-btn layui-btn-warm layui-btn-xs' lay-event='apply_has_deal'>已处理,下载回执</button>"
                         }
                     }}
                     ,{field:'insert_time', title:'提取时间', sort: true}
-                    ,{fixed: 'right', title:'操作',  minWidth:150, templet:function (res) {
+                    ,{fixed: 'right', title:'操作',  minWidth:200, templet:function (res) {
+                        var downloadBtn = '<a class="layui-btn layui-btn-warm layui-btn-xs" lay-event="desc_info">查看描述</a>';
+                        if(res.apply_file_path != ''){
+                            downloadBtn = '<a class="layui-btn layui-btn-warn layui-btn-xs" lay-event="download_desc">下载描述</a>';
+                        }
                         var delBtn = '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>';
                         var editBtn = '<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>';
                         if(userRole=='1' && res.apply_status == '0'){
-                            return editBtn + delBtn
+                            return downloadBtn + editBtn + delBtn
                         }else{
-                            return '<a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="">编辑</a>' + delBtn
+                            return downloadBtn + '<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="info">详情</a>' + delBtn
                         }
                     }}
                  ]
@@ -92,10 +97,11 @@
                         type: 2,
                         title: "新增提取",
                         shade: [0],
-                        area: ['670px', '600px'],
+                        area: ['670px', '500px'],
+                        offset: '2px',
                         anim: 2,
                         content: [context + 'apply/toAddApply', 'no'], //iframe的url，no代表不显示滚动条
-                        end: function(){ //此处用于演示
+                        end: function(){
                             location.reload()
                         }
                     });
@@ -121,19 +127,26 @@
                         data: {"apply_id":data.apply_id},
                         success: function (msg) {
                             layer.msg("删除成功");
+                            setInterval(function () {
+                                location.reload()
+                            },1500)
                         }
                     });
                     layer.close(index);
                 });
-            } else if(obj.event === 'edit'){
-                layer.prompt({
-                    formType: 2
-                    ,value: data.email
-                }, function(value, index){
-                    obj.update({
-                        email: value
-                    });
-                    layer.close(index);
+            }else if(obj.event === 'edit'){
+                //弹框修改
+                layer.open({
+                    type: 2,
+                    title: "新增修改",
+                    shade: [0],
+                    area: ['670px', '500px'],
+                    offset: '2px',
+                    anim: 2,
+                    content: [context + 'apply/toEditApply?apply_id='+data.apply_id, 'no'], //iframe的url，no代表不显示滚动条
+                    end: function(){
+                        location.reload()
+                    }
                 });
             }else if(obj.event === 'apply_status'){
                 //处理任务。弹出框，上传文件
@@ -148,6 +161,53 @@
                     end: function(){ //此处用于演示
                         location.reload()
                     }
+                });
+            }else if(obj.event === 'apply_send'){
+                //点击待发送按钮，发送提取任务
+                layer.confirm('确定要发送此提取需求吗？', function(index){
+                    $.ajax({
+                        url: context + "apply/applySend",
+                        type: "post",
+                        data: {"apply_id":data.apply_id},
+                        success: function (msg) {
+                            if("success"==msg){
+                                layer.msg("发送成功",{icon:6})
+                                location.reload();
+                            }else{
+                                layer.msg(msg,{icon:5});
+                            }
+                        }
+                    });
+                    layer.close(index);
+                });
+            }else if(obj.event === "apply_has_deal"){
+                location.href = context + "apply/downloadDealFile?apply_id="+data.apply_id
+            }else if(obj.event === 'download_desc'){
+                location.href = context + "apply/downloadApplyDesc?apply_id="+data.apply_id
+            }else if(obj.event === 'download_certify'){
+                location.href = context + "apply/downloadCertify?apply_id="+data.apply_id
+            }else if(obj.event === 'info'){
+                //移动端查看详情
+                layer.open({
+                    type: 2,
+                    title: "查看提取",
+                    shade: [0],
+                    area: ['670px', '500px'],
+                    offset: '2px',
+                    anim: 2,
+                    content: [context + 'apply/toApplyInfo?apply_id='+data.apply_id, 'no'] //iframe的url，no代表不显示滚动条
+                });
+            }else if(obj.event === "desc_info"){
+                //弹框查看描述
+                //移动端查看详情
+                layer.open({
+                    type: 2,
+                    title: "查看提取",
+                    shade: [0],
+                    area: ['550px', '300px'],
+                    offset: '2px',
+                    anim: 2,
+                    content: [context + 'apply/toDescInfo?apply_id='+data.apply_id, 'no'] //iframe的url，no代表不显示滚动条
                 });
             }
         });

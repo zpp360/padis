@@ -56,4 +56,21 @@ public class ApplyService {
     public void delApply(PageData pd) throws Exception {
         dao.update("ApplyMapper.delApply",pd);
     }
+
+    /**
+     * 根据id查询
+     * @param applyId
+     * @return
+     */
+    public PageData findById(String applyId) throws Exception {
+        return (PageData) dao.findForObject("ApplyMapper.findById",applyId);
+    }
+
+    /**
+     * 更新
+     * @param pd
+     */
+    public void updateApply(PageData pd) throws Exception {
+        dao.update("ApplyMapper.updateApply",pd);
+    }
 }

@@ -6,6 +6,7 @@ import com.zhengpp.padis.entity.User;
 import com.zhengpp.padis.service.ApplyService;
 import com.zhengpp.padis.utils.Const;
 import com.zhengpp.padis.utils.ResponseData;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -50,17 +51,13 @@ public class ApplyController extends BaseController{
     @RequestMapping("/applyListData")
     @ResponseBody
     public ResponseData applyListData() throws Exception {
-        PageData pd = this.getPageData();
+        PageData pd = this.getPageInfo();
         Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
+        pd.put("user_role",user.getUserRole());
         if("1".equals(user.getUserRole())){
             //公安列表，只查看自己发布的
-            pd.put("user_role","1");
             pd.put("insert_user",user.getUserId());
-        }
-        if("2".equals(user.getUserRole())){
-            //移动，查看所有数据,不看apply_status为1的数据
-            pd.put("user_role","2");
         }
         List<PageData> list = applyService.listPage(pd);
         Long count = applyService.countListPage(pd);
@@ -74,12 +71,40 @@ public class ApplyController extends BaseController{
      * @return
      */
     @RequestMapping("/toAddApply")
-    @ResponseBody
     public ModelAndView toAddApply(ModelAndView mv){
         Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
         mv.addObject("user",user);
         mv.setViewName("/apply/applyAdd");
+        return mv;
+    }
+
+    /**
+     * 跳转到提取详情页面
+     * @param applyId
+     * @return
+     */
+    @RequestMapping("/toApplyInfo")
+    public ModelAndView toApplyInfo(@RequestParam(value = "apply_id") String applyId) throws Exception {
+        ModelAndView mv = new ModelAndView();
+        PageData pd = applyService.findById(applyId);
+        mv.addObject("pd",pd);
+        mv.setViewName("/apply/applyInfo");
+        return mv;
+    }
+
+    /**
+     * 查看
+     * @param applyId
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping("toDescInfo")
+    public ModelAndView toDescInfo(@RequestParam(value = "apply_id") String applyId) throws Exception {
+        ModelAndView mv = new ModelAndView();
+        PageData pd = applyService.findById(applyId);
+        mv.addObject("apply_desc",pd.getString("apply_desc"));
+        mv.setViewName("/apply/applyDescInfo");
         return mv;
     }
 
@@ -141,6 +166,59 @@ public class ApplyController extends BaseController{
         pd.put("update_user",user.getUserId());
         applyService.delApply(pd);
         return "success";
+    }
+
+    @RequestMapping("/applySend")
+    @ResponseBody
+    public String applySend(@RequestParam(value = "apply_id") String applyId) throws Exception {
+        PageData pd = applyService.findById(applyId);
+        if(pd==null){
+            return "未查询到该数据";
+        }
+        if(StringUtils.isBlank(pd.getString("certify_file_name")) || StringUtils.isBlank(pd.getString("certify_file_path"))){
+            return "未上传电子公函";
+        }
+        if(StringUtils.isBlank(pd.getString("apply_desc")) && StringUtils.isBlank(pd.getString("apply_file_path"))){
+            return "未填写描述信息或上传描述文件";
+        }
+
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        pd.put("update_user",user.getUserId());
+        pd.put("apply_status","1");
+        applyService.updateApply(pd);
+        return "success";
+    }
+
+    /**
+     * 修改页面
+     * @param applyId
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/toEditApply")
+    public ModelAndView toEditApply(@RequestParam(value = "apply_id") String applyId) throws Exception {
+        ModelAndView mv = new ModelAndView();
+        PageData pd = applyService.findById(applyId);
+        mv.addObject("pd",pd);
+        mv.setViewName("/apply/applyEdit");
+        return mv;
+    }
+
+    /**
+     * 保存提取
+     * @param mv
+     * @return
+     */
+    @RequestMapping(value = "/editApply")
+    public ModelAndView editApply(ModelAndView mv) throws Exception {
+        PageData pd = this.getPageData();
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        pd.put("update_user",user.getUserId());
+        applyService.updateApply(pd);
+        mv.setViewName("/saveResult");
+        return mv;
     }
 
     /**
@@ -340,5 +418,168 @@ public class ApplyController extends BaseController{
             }
         }
         return data;
+    }
+
+    /**
+     * 下载处理文件
+     * @param applyId
+     * @return
+     */
+    @RequestMapping(value = "/downloadDealFile")
+    public void downloadDealFile(@RequestParam(value = "apply_id") String applyId, HttpServletRequest request,HttpServletResponse response) throws Exception {
+        PageData pd = applyService.findById(applyId);
+        String fileName = pd.getString("apply_deal_file_name");
+        String rootPath = request.getServletContext().getRealPath("/");
+        String url = pd.getString("apply_deal_file_path");
+        String filePath = null;
+        if(StringUtils.isNotBlank(url)){
+            filePath = rootPath + url.replace("/","\\");
+        }
+        File file = new File(filePath);
+        if(file.exists()) {
+            // 配置文件下载
+            response.setHeader("content-type", "application/octet-stream");
+            response.setContentType("application/octet-stream");
+            // 下载文件能正常显示中文
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+            byte[] buffer = new byte[1024];
+            FileInputStream fis = null;
+            BufferedInputStream bis = null;
+            try {
+                fis = new FileInputStream(file);
+                bis = new BufferedInputStream(fis);
+                OutputStream os = response.getOutputStream();
+                int i = bis.read(buffer);
+                while (i != -1) {
+                    os.write(buffer, 0, i);
+                    i = bis.read(buffer);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (bis != null) {
+                    try {
+                        bis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * 下载描述文件
+     * @param applyId
+     * @return
+     */
+    @RequestMapping(value = "/downloadApplyDesc")
+    public void downloadApplyDesc(@RequestParam(value = "apply_id") String applyId, HttpServletRequest request,HttpServletResponse response) throws Exception {
+        PageData pd = applyService.findById(applyId);
+        String fileName = pd.getString("apply_file_name");
+        String rootPath = request.getServletContext().getRealPath("/");
+        String url = pd.getString("apply_file_path");
+        String filePath = null;
+        if(StringUtils.isNotBlank(url)){
+            filePath = rootPath + url.replace("/","\\");
+        }
+        File file = new File(filePath);
+        if(file.exists()) {
+            // 配置文件下载
+            response.setHeader("content-type", "application/octet-stream");
+            response.setContentType("application/octet-stream");
+            // 下载文件能正常显示中文
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+            byte[] buffer = new byte[1024];
+            FileInputStream fis = null;
+            BufferedInputStream bis = null;
+            try {
+                fis = new FileInputStream(file);
+                bis = new BufferedInputStream(fis);
+                OutputStream os = response.getOutputStream();
+                int i = bis.read(buffer);
+                while (i != -1) {
+                    os.write(buffer, 0, i);
+                    i = bis.read(buffer);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (bis != null) {
+                    try {
+                        bis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    /**
+     * 下载电子凭证
+     * @param applyId
+     * @return
+     */
+    @RequestMapping(value = "/downloadCertify")
+    public void downloadCertify(@RequestParam(value = "apply_id") String applyId, HttpServletRequest request,HttpServletResponse response) throws Exception {
+        PageData pd = applyService.findById(applyId);
+        String fileName = pd.getString("certify_file_name");
+        String rootPath = request.getServletContext().getRealPath("/");
+        String url = pd.getString("certify_file_path");
+        String filePath = null;
+        if(StringUtils.isNotBlank(url)){
+            filePath = rootPath + url.replace("/","\\");
+        }
+        File file = new File(filePath);
+        if(file.exists()) {
+            // 配置文件下载
+            response.setHeader("content-type", "application/octet-stream");
+            response.setContentType("application/octet-stream");
+            // 下载文件能正常显示中文
+            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+            byte[] buffer = new byte[1024];
+            FileInputStream fis = null;
+            BufferedInputStream bis = null;
+            try {
+                fis = new FileInputStream(file);
+                bis = new BufferedInputStream(fis);
+                OutputStream os = response.getOutputStream();
+                int i = bis.read(buffer);
+                while (i != -1) {
+                    os.write(buffer, 0, i);
+                    i = bis.read(buffer);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (bis != null) {
+                    try {
+                        bis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 }

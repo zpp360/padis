@@ -29,11 +29,12 @@ public class BaseController {
      * @param pd
      * @return
      */
-    public PageData getPageInfo(PageData pd){
-        String pageNumber = pd.getString("page_number");
-        String pageSize = pd.getString("page_size");
+    public PageData getPageInfo(){
+        PageData pd = this.getPageData();
+        String pageNumber = pd.getString("page");
+        String pageSize = pd.getString("limit");
         if(StringUtils.isBlank(pageSize)){
-            pageSize = "15";
+            pageSize = "10";
         }
         int start = 0;
         if (StringUtils.isNotBlank(pageNumber)) {

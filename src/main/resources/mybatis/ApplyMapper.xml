@@ -7,13 +7,14 @@
           *
         from m_apply t
         where t.del_flag = '0'
-        <if test="user_role=='2'">
+        <if test='user_role == "2"'>
             and t.apply_status in ('1','2')
         </if>
         <if test="insert_user != null and insert_user != ''">
             and t.insert_user = #{insert_user}
         </if>
         order by t.apply_status asc,t.update_time desc
+        limit ${start},${page_size}
     </select>
 
     <select id="countListPage" parameterType="pd" resultType="java.lang.Long">
@@ -32,6 +33,7 @@
           apply_name,
           apply_user,
           user_number,
+          apply_number,
           certify_file_name,
           certify_file_path,
           apply_desc,
@@ -48,6 +50,7 @@
           #{apply_name},
           #{apply_user},
           #{user_number},
+          #{apply_number},
           #{certify_file_name},
           #{certify_file_path},
           #{apply_desc},
@@ -77,5 +80,34 @@
           update_user = #{update_user},
           update_time = now()
         where apply_id = #{apply_id}
+    </update>
+
+    <select id="findById" parameterType="java.lang.String" resultType="pd">
+        select
+          t.*,
+          u.user_unit
+        from m_apply t
+        left join sys_user u
+        on t.insert_user = u.user_id
+        where t.del_flag = '0'
+        and t.apply_id = #{applyId}
+    </select>
+
+    <update id="updateApply" parameterType="pd">
+        update m_apply set
+          apply_name  = #{apply_name},
+          apply_user =#{apply_user},
+          user_number=#{user_number},
+          apply_number=#{apply_number},
+          certify_file_name=#{certify_file_name},
+          certify_file_path=#{certify_file_path},
+          apply_desc=#{apply_desc},
+          apply_file_name=#{apply_file_name},
+          apply_file_path=#{apply_file_path},
+          apply_status=#{apply_status},
+          update_user=#{update_user},
+          update_time = now()
+        where apply_id = #{apply_id}
+
     </update>
 </mapper>

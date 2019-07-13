@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>描述详情</title>
+    <link rel="stylesheet" th:href="@{/static/plugins/layui/css/layui.css}">
+    <link th:href="@{/static/css/reset.css}" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .layui-textarea{
+            width: 520px;
+            margin: 0 auto;
+            height: 200px;
+        }
+    </style>
+</head>
+<body style="margin-top: 30px;">
+<form class="layui-form" >
+    <div class="layui-form-item layui-form-text apply_desc">
+            <textarea name="apply_desc" maxlength="500" disabled  th:text="${apply_desc}" placeholder="请输入描述信息" lay-verify="apply_desc" class="layui-textarea"></textarea>
+    </div>
+</form>
+</body>
+
+<script th:src="@{/static/plugins/layui/layui.js}"></script>
+<script>
+    layui.use(['jquery', 'form'], function(){
+
+        $(".close").click(function () {
+            //当你在iframe页面关闭自身时
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关闭
+        })
+    });
+
+
+</script>
+</html>

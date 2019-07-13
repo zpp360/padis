@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>提取详情</title>
+    <link rel="stylesheet" th:href="@{/static/plugins/layui/css/layui.css}">
+    <link th:href="@{/static/css/reset.css}" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .layui-input{
+            width: 200px;
+        }
+        .layui-textarea{
+            width: 520px;
+        }
+    </style>
+</head>
+<body style="margin-top: 30px;">
+<form class="layui-form" th:action="@{/apply/editApply}">
+    <input type="hidden" name="apply_id" th:value="${pd.apply_id}"/>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label"><span class="layui-form-required">*</span>提取名称</label>
+            <div class="layui-input-block">
+                <input type="text" name="apply_name" maxlength="50"  required th:value="${pd.apply_name}" lay-verify="apply_name" placeholder="" autocomplete="off" class="layui-input" readonly>
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <label class="layui-form-label"><span class="layui-form-required">*</span>提取人</label>
+            <div class="layui-input-block">
+                <input type="text" name="apply_user" maxlength="20" readonly="readonly" required th:value="${pd.apply_user}"  lay-verify="apply_user" placeholder="" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">警员编号</label>
+            <div class="layui-input-block">
+                <input type="text" name="user_number" maxlength="20" readonly="readonly" th:value="${pd.user_number}"  lay-verify="user_number" placeholder="" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-inline">
+            <label class="layui-form-label">单位</label>
+            <div class="layui-input-block">
+                <input type="text" name="user_unit"  required disabled th:value="${pd.user_unit}"  lay-verify="user_unit" placeholder="" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label"><span class="layui-form-required">*</span>公函编号</label>
+            <input type="text" name="apply_number" readonly="readonly" th:value="${pd.apply_number}" maxlength="40" required  lay-verify="apply_number" placeholder="请填写电子公函编号" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-inline">
+            <input type="hidden" name="certify_file_path" th:value="${pd.certify_file_path}" lay-verify="certify_file_path"/>
+            <input type="hidden" name="certify_file_name" th:value="${pd.certify_file_name}" lay-verify="certify_file_name"/>
+            <button type="button" class="layui-btn" id="upload_certify"><i class="layui-icon"></i>上传电子公函</button>
+            <span id="certify_file_name" th:text="${pd.certify_file_name}"></span>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">描述方式</label>
+        <div class="layui-input-block">
+            <th:block th:switch="${ pd.apply_file_path eq null || pd.apply_file_path eq ''}">
+                <input th:case="false" type="checkbox"   name="desc_type" lay-skin="switch" lay-filter="switch_apply_desc_type" lay-text="手工输入|Excel导入">
+                <input th:case="true" type="checkbox" checked="true"  name="desc_type" lay-skin="switch" lay-filter="switch_apply_desc_type" lay-text="手工输入|Excel导入">
+            </th:block>
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text apply_desc">
+        <label class="layui-form-label"><span class="layui-form-required">*</span>描述信息</label>
+        <div class="layui-input-block">
+            <textarea name="apply_desc" maxlength="500" disabled  th:text="${pd.apply_desc}" placeholder="请输入描述信息" lay-verify="apply_desc" class="layui-textarea"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item apply_file_upload" style="display: none">
+        <div class="layui-inline">
+            <label class="layui-form-label"><span class="layui-form-required">*</span>描述文件</label>
+            <input type="text" name="apply_file_name"  th:value="${pd.apply_file_name}" maxlength="50" required readonly="readonly"  lay-verify="apply_file_name" placeholder="请上传描述文件" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-inline">
+            <input type="hidden" name="apply_file_path" th:value="${pd.apply_file_path}" lay-verify="apply_file_path"/>
+            <button type="button" class="layui-btn" id="upload_desc"><i class="layui-icon"></i>上传描述</button>
+            <button type="button" class="layui-btn" id="upload_desc_template">描述模板下载</button>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button type="button" class="layui-btn layui-btn-primary close">关闭</button>
+        </div>
+    </div>
+</form>
+</body>
+
+<script th:src="@{/static/plugins/layui/layui.js}"></script>
+<script th:inline="javascript">
+    var context = [[@{/}]];
+</script>
+<script>
+    layui.use(['jquery', 'form'], function(){
+        var form = layui.form;
+        var upload = layui.upload;
+        var $ = jQuery = layui.$;
+
+        //电子公函名字显示处理，多余9个字符截取
+        var fileName =  $("#certify_file_name").text()
+        var ext = fileName.substr(fileName.lastIndexOf("."))
+        var name = fileName.substr(0,fileName.lastIndexOf("."))
+        if(name.length>9){
+            name = name.substr(0,9)+"**"
+        }
+        $("#certify_file_name").text(name+ext)
+
+        //隐藏显示开关
+        if($("input[name='apply_file_path']").val()!=''){
+            $(".apply_desc").hide()
+            $(".apply_file_upload").show()
+        }else{
+            $(".apply_desc").show()
+            $(".apply_file_upload").hide()
+        }
+
+        //监听指定开关
+        form.on('switch(switch_apply_desc_type)', function(data){
+            if(this.checked){
+                //选中，使用文本描述
+                $(".apply_desc").show()
+                $(".apply_file_upload").hide()
+            }else{
+                //取消选中，使用文件上传
+                $(".apply_desc").hide()
+                $(".apply_file_upload").show()
+            }
+        });
+
+        $(".close").click(function () {
+            //当你在iframe页面关闭自身时
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index); //再执行关闭
+        })
+
+        //下载模板文件
+        $("#upload_desc_template").click(function () {
+            location.href = context + "static/templatefile/信息提取表.xlsx"
+        })
+    });
+
+
+</script>
+</html>
