@@ -13,6 +13,18 @@
         <if test="insert_user != null and insert_user != ''">
             and t.insert_user = #{insert_user}
         </if>
+        <if test="apply_name != null and apply_name != ''">
+            and t.apply_name like concat('%',#{apply_name},'%')
+        </if>
+        <if test="apply_number != null and apply_number != ''">
+            and t.apply_number like concat('%',#{apply_number},'%')
+        </if>
+        <if test="insert_time_min != null and insert_time_min != ''">
+            and t.insert_time <![CDATA[ > ]]> #{insert_time_min}
+        </if>
+        <if test="insert_time_max != null and insert_time_max != ''">
+            and t.insert_time <![CDATA[ < ]]> #{insert_time_max}
+        </if>
         order by t.apply_status asc,t.update_time desc
         limit ${start},${page_size}
     </select>
@@ -22,8 +34,23 @@
           count(1)
         from m_apply t
         where t.del_flag = '0'
+        <if test='user_role == "2"'>
+            and t.apply_status in ('1','2')
+        </if>
         <if test="insert_user != null and insert_user != ''">
             and t.insert_user = #{insert_user}
+        </if>
+        <if test="apply_name != null and apply_name != ''">
+            and t.apply_name like concat('%',#{apply_name},'%')
+        </if>
+        <if test="apply_number != null and apply_number != ''">
+            and t.apply_number like concat('%',#{apply_number},'%')
+        </if>
+        <if test="insert_time_min != null and insert_time_min != ''">
+            and t.insert_time <![CDATA[ > ]]> #{insert_time_min}
+        </if>
+        <if test="insert_time_max != null and insert_time_max != ''">
+            and t.insert_time <![CDATA[ < ]]> #{insert_time_max}
         </if>
     </select>
 
