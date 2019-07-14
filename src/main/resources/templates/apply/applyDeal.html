@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>处理任务</title>
+    <link rel="stylesheet" th:href="@{/static/plugins/layui/css/layui.css}">
+    <link th:href="@{/static/css/reset.css}" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .layui-upload-drag{
+            margin-left: 70px;
+        }
+        .layui-input-block{
+            margin-left: 160px;
+            margin-top: 20px;
+        }
+        #upload_apply_deal{
+            width: 196px;
+            height: 96px;
+        }
+    </style>
+</head>
+<body style="margin-top: 30px;">
+<form class="layui-form" th:action="@{/apply/dealApply}">
+    <input type="hidden" lay-verify="apply_id" name="apply_id" th:value="${pd.apply_id}" />
+    <input type="hidden" lay-verify="apply_deal_file_name" name="apply_deal_file_name" />
+    <input type="hidden" lay-verify="apply_deal_file_path" name="apply_deal_file_path" />
+    <div class="layui-upload-drag" id="upload_apply_deal">
+        <i class="layui-icon"></i>
+        <p>点击上传，或将文件拖拽到此处</p>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn submit" lay-submit lay-filter="submit">提交</button>
+        </div>
+    </div>
+</form>
+</body>
+
+<script th:src="@{/static/plugins/layui/layui.js}"></script>
+<script th:inline="javascript">
+    var context = [[@{/}]];
+</script>
+<script>
+    layui.use(['jquery','layer', 'form', 'element','upload'], function(){
+        var form = layui.form;
+        var upload = layui.upload;
+        var $ = jQuery = layui.$;
+
+        //上传公函
+        upload.render({
+            elem: '#upload_apply_deal'
+            ,url: context + 'apply/uploadDeal'
+            ,accept: 'file' //普通文件
+            ,size: '102400'
+            ,exts:'doc|docx|xls|xlsx|pdf'
+            ,done: function(res){
+                if(res.code != '0'){
+                    if(res.msg == 'nonsupport_type'){
+                        layer.msg("选中的文件中包含不支持的文件格式",{icon:5});
+                        return
+                    }
+                    if(res.msg == "outsize"){
+                        layer.msg("文件最大限制为100M",{icon:5});
+                        return
+                    }
+                }
+                if(res.code == '0'){
+                    $("input[name='apply_deal_file_name']").val(res.map.apply_deal_file_name)
+                    $("input[name='apply_deal_file_path']").val(res.map.apply_deal_file_path)
+                    $("#upload_apply_deal").children("p").text(res.map.apply_deal_file_name)
+                }
+
+            }
+        });
+
+        //自定义验证规则
+        form.verify({
+            apply_id: function(value){
+                if(value==null || value==''){
+                    return '没有ID';
+                }
+            }
+            ,apply_deal_file_name:  function(value) {
+                if (value == null || value == '') {
+                    return '请上传处理文件';
+                }
+            }
+            ,apply_deal_file_path: function (value) {
+                if (value == null || value == '') {
+                    return '请上传处理文件';
+                }
+            }
+        });
+
+        //监听保存并提取提交
+        form.on('submit(submit)', function(data){
+            form.submit();
+        });
+    });
+
+
+</script>
+</html>
