@@ -13,6 +13,10 @@
         .layui-textarea{
             width: 520px;
         }
+        .layui-upload-img{
+            width: 100px;
+            height: auto;
+        }
     </style>
 </head>
 <body style="margin-top: 30px;">
@@ -48,6 +52,27 @@
             </div>
         </div>
     </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label"><span class="layui-form-required">*</span>警员证1</label>
+            <img class="layui-upload-img" id="user_number_file_name1" th:src="${#servletContext.contextPath + pd.user_number_file_path1}" alt="">
+        </div>
+        <div class="layui-inline">
+            <input type="hidden" th:value="${pd.user_number_file_path1}" name="user_number_file_path1" lay-verify="user_number_file_path1"/>
+            <input type="hidden" th:value="${pd.user_number_file_name1}" name="user_number_file_name1" lay-verify="user_number_file_name1"/>
+            <button type="button" class="layui-btn" id="upload_user_number_file1"><i class="layui-icon"></i>上传</button>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label"><span class="layui-form-required">*</span>警员证2</label>
+            <img class="layui-upload-img" id="user_number_file_name2" th:src="${#servletContext.contextPath + pd.user_number_file_path2}" alt="">
+        </div>
+        <div class="layui-inline">
+            <input type="hidden" th:value="${pd.user_number_file_path2}" name="user_number_file_path2" lay-verify="user_number_file_path2"/>
+            <input type="hidden" th:value="${pd.user_number_file_name2}" name="user_number_file_name2" lay-verify="user_number_file_name2"/>
+            <button type="button" class="layui-btn" id="upload_user_number_file2"><i class="layui-icon"></i>上传</button>
+        </div>
+    </div>
+
     <div class="layui-form-item">
         <div class="layui-inline">
             <label class="layui-form-label"><span class="layui-form-required">*</span>公函编号</label>
@@ -134,7 +159,6 @@
             ,size: '102400'
             ,exts:'jpg|jpeg|png|gif|doc|docx|xls|xlsx|pdf'
             ,done: function(res){
-                console.log(res)
                 if(res.code != '0'){
                     if(res.msg == 'nonsupport_type'){
                         layer.msg("选中的文件中包含不支持的文件格式",{icon:5});
@@ -168,7 +192,6 @@
             ,size: '102400'
             ,exts:'xls|xlsx'
             ,done: function(res){
-                console.log(res)
                 if(res.code != '0'){
                     if(res.msg == 'nonsupport_type'){
                         layer.msg("选中的文件中包含不支持的文件格式",{icon:5});
@@ -184,6 +207,59 @@
                     $("input[name='apply_file_path']").val(res.map.apply_file_path)
                 }
 
+            }
+        });
+
+        //上传警员证1
+        upload.render({
+            elem: '#upload_user_number_file1'
+            ,url: context + 'apply/uploadUserNumberFile'
+            ,accept: 'images' //普通文件
+            ,acceptMime: 'images/*'
+            ,size: '102400'
+            ,exts:'jpg|jpeg|png|gif|bmp'
+            ,done: function(res){
+                if(res.code != '0'){
+                    if(res.msg == 'nonsupport_type'){
+                        layer.msg("选中的文件中包含不支持的文件格式",{icon:5});
+                        return
+                    }
+                    if(res.msg == "outsize"){
+                        layer.msg("文件最大限制为100M",{icon:5});
+                        return
+                    }
+                }
+                if(res.code == '0'){
+                    $("input[name='user_number_file_name1']").val(res.map.user_number_file_name)
+                    $("input[name='user_number_file_path1']").val(res.map.user_number_file_path)
+                    $("#user_number_file_name1").attr("src",context + res.map.user_number_file_path)
+                }
+            }
+        });
+        //上传警员证2
+        upload.render({
+            elem: '#upload_user_number_file2'
+            ,url: context + 'apply/uploadUserNumberFile'
+            ,accept: 'images' //普通文件
+            ,acceptMime: 'images/*'
+            ,size: '102400'
+            ,exts:'jpg|jpeg|png|gif|bmp'
+            ,done: function(res){
+                if(res.code != '0'){
+                    if(res.msg == 'nonsupport_type'){
+                        layer.msg("选中的文件中包含不支持的文件格式",{icon:5});
+                        return
+                    }
+                    if(res.msg == "outsize"){
+                        layer.msg("文件最大限制为100M",{icon:5});
+                        return
+                    }
+                }
+                if(res.code == '0'){
+                    $("input[name='user_number_file_name2']").val(res.map.user_number_file_name)
+                    $("input[name='user_number_file_path2']").val(res.map.user_number_file_path)
+                    $("#user_number_file_name2").attr("src",context + res.map.user_number_file_path)
+                }
             }
         });
 
@@ -203,6 +279,16 @@
                 }
                 if (value.length > 20) {
                     return '提取人不能超过20个字符'
+                }
+            }
+            ,user_number_file_path1: function (value) {
+                if (value == null || value == '') {
+                    return '请上传警员证1';
+                }
+            }
+            ,user_number_file_path2: function (value) {
+                if (value == null || value == '') {
+                    return '请上传警员证2';
                 }
             }
             ,certify_file_name: function (value) {
@@ -239,13 +325,11 @@
         });
         //监听保存并提取提交
         form.on('submit(saveAndApply)', function(data){
-            console.log("监听更新并提取")
             $("input[name='apply_status']").val("1")
             form.submit();
         });
         //监听仅保存提交
         form.on('submit(save)', function(data){
-            console.log("监听仅更新")
             $("input[name='apply_status']").val("0")
             form.submit();
             return true;

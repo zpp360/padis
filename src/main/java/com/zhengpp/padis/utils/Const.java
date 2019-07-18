@@ -8,6 +8,7 @@ public class Const {
     public static final String PNG = "png";
     public static final String JPEG = "jpeg";
     public static final String GIF = "gif";
+    public static final String BMP = "bmp";
     public static final String DOC = "doc";
     public static final String DOCX = "docx";
     public static final String XLS = "xls";
@@ -28,5 +29,9 @@ public class Const {
      * 任务处理文件存储路径
      */
     public static final String APPLY_DEAL_PATH = "/upload/deal/";
+    /**
+     * 警员证存储路径
+     */
+    public static final String APPLY_USER_NUMBER = "/upload/usernumber/";
 
 }

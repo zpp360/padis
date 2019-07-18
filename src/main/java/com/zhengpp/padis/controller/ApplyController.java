@@ -419,6 +419,72 @@ public class ApplyController extends BaseController{
         }
         return data;
     }
+    /**
+     * 上传警员证
+     * @param request
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    @RequestMapping("/uploadUserNumberFile")
+    @ResponseBody
+    public ResponseData uploadUserNumberFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ResponseData data = new ResponseData();
+        // 图片路径
+        String imgPath = "";
+        // 图片名称
+        String orgFileName = null;
+        // 图片后缀
+        String fileExt = null;
+        // 文件格式错误信息
+        String fileExtError = null;
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+        Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
+
+        response.setContentType("text/html");
+        response.setCharacterEncoding("UTF-8");
+        for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
+            // 上传文件
+            MultipartFile mf = entity.getValue();
+            // 获取图片大小
+            int picSize = Integer.parseInt(String.valueOf(mf.getSize()));
+            // 获取原文件名
+            orgFileName = mf.getOriginalFilename();
+            String fileName =  mf.getOriginalFilename();
+            // 获取图片后缀
+            fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+            if (!Const.JPG.equals(fileExt) && !Const.JPEG.equals(fileExt) && !Const.PNG.equals(fileExt) && !Const.GIF.equals(fileExt)
+                    && !Const.BMP.equals(fileExt)) {
+                fileExtError = "nonsupport_type";
+                data.setCode("1");
+                data.setMsg(fileExtError);
+                return data;
+            } else if (picSize > Const.ONE_HUNDRED_MB) {
+                fileExtError = "out_size";
+                data.setCode("1");
+                data.setMsg(fileExtError);
+                return data;
+            } else {
+                // 对原文件名进行重命名
+                fileName = this.get32UUID() + "." + fileExt;
+                // 返回图片路径
+                String rootPath = request.getServletContext().getRealPath( "WEB-INF/classes"+Const.APPLY_USER_NUMBER);
+                imgPath = Const.APPLY_USER_NUMBER + fileName;
+                File dic = new File(rootPath );
+                if(!dic.exists()){
+                    dic.mkdirs();
+                }
+                //上传至服务器
+                String realPath = rootPath + fileName;
+                mf.transferTo(new File(realPath));
+
+                data.getMap().put("user_number_file_name",orgFileName);
+                data.getMap().put("user_number_file_path",imgPath);
+                return data;
+            }
+        }
+        return data;
+    }
 
     /**
      * 下载处理文件

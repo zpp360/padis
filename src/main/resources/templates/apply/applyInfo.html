@@ -13,6 +13,10 @@
         .layui-textarea{
             width: 520px;
         }
+        .layui-upload-img{
+            width: 100px;
+            height: auto;
+        }
     </style>
 </head>
 <body style="margin-top: 30px;">
@@ -50,13 +54,33 @@
     </div>
     <div class="layui-form-item">
         <div class="layui-inline">
+            <label class="layui-form-label"><span class="layui-form-required">*</span>警员证1</label>
+            <img class="layui-upload-img" id="user_number_file_name1" th:src="${#servletContext.contextPath + pd.user_number_file_path1}" alt="">
+        </div>
+        <div class="layui-inline">
+            <input type="hidden" th:value="${pd.user_number_file_path1}" name="user_number_file_path1" lay-verify="user_number_file_path1"/>
+            <input type="hidden" th:value="${pd.user_number_file_name1}" name="user_number_file_name1" lay-verify="user_number_file_name1"/>
+            <button type="button"  class="layui-btn layui-btn-disabled" id="upload_user_number_file1"><i class="layui-icon"></i>上传</button>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label"><span class="layui-form-required">*</span>警员证2</label>
+            <img class="layui-upload-img" id="user_number_file_name2" th:src="${#servletContext.contextPath + pd.user_number_file_path2}" alt="">
+        </div>
+        <div class="layui-inline">
+            <input type="hidden" th:value="${pd.user_number_file_path2}" name="user_number_file_path2" lay-verify="user_number_file_path2"/>
+            <input type="hidden" th:value="${pd.user_number_file_name2}" name="user_number_file_name2" lay-verify="user_number_file_name2"/>
+            <button type="button"  class="layui-btn layui-btn-disabled" id="upload_user_number_file2"><i class="layui-icon"></i>上传</button>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
             <label class="layui-form-label"><span class="layui-form-required">*</span>公函编号</label>
             <input type="text" name="apply_number" readonly="readonly" th:value="${pd.apply_number}" maxlength="40" required  lay-verify="apply_number" placeholder="请填写电子公函编号" autocomplete="off" class="layui-input">
         </div>
         <div class="layui-inline">
             <input type="hidden" name="certify_file_path" th:value="${pd.certify_file_path}" lay-verify="certify_file_path"/>
             <input type="hidden" name="certify_file_name" th:value="${pd.certify_file_name}" lay-verify="certify_file_name"/>
-            <button type="button" class="layui-btn" id="upload_certify"><i class="layui-icon"></i>上传电子公函</button>
+            <!--<button type="button" class="layui-btn" id="upload_certify"><i class="layui-icon"></i>上传电子公函</button>-->
             <span id="certify_file_name" th:text="${pd.certify_file_name}"></span>
         </div>
     </div>
@@ -80,10 +104,9 @@
             <label class="layui-form-label"><span class="layui-form-required">*</span>描述文件</label>
             <input type="text" name="apply_file_name"  th:value="${pd.apply_file_name}" maxlength="50" required readonly="readonly"  lay-verify="apply_file_name" placeholder="请上传描述文件" autocomplete="off" class="layui-input">
         </div>
-        <div class="layui-inline">
+        <div class="layui-inline" th:if="${pd.apply_file_path != ''}">
             <input type="hidden" name="apply_file_path" th:value="${pd.apply_file_path}" lay-verify="apply_file_path"/>
-            <button type="button" class="layui-btn" id="upload_desc"><i class="layui-icon"></i>上传描述</button>
-            <button type="button" class="layui-btn" id="upload_desc_template">描述模板下载</button>
+            <button type="button" class="layui-btn layui-btn-warm" id="upload_desc">下载描述</button>
         </div>
     </div>
     <div class="layui-form-item">
@@ -141,9 +164,18 @@
             parent.layer.close(index); //再执行关闭
         })
 
-        //下载模板文件
-        $("#upload_desc_template").click(function () {
-            location.href = context + "static/templatefile/信息提取表.xlsx"
+        $("#user_number_file_name1,#user_number_file_name2").click(function () {
+            var json = {"title": "警员证", "id": 123, "start": 0,  "data": [   { "alt": "警员证2", "pid": 666,  "src": $("#user_number_file_name1").attr("src"),  "thumb": ""  },{ "alt": "警员证1", "pid": 777,  "src": $("#user_number_file_name2").attr("src"),  "thumb": ""  }] }
+            layer.photos({
+                photos: json
+                ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+            });
+        })
+
+        //下载描述文件
+        $("#upload_desc").click(function () {
+            var applyId = $("input[name='apply_id']").val();
+            location.href = context + "apply/downloadApplyDesc?apply_id="+applyId
         })
     });
 

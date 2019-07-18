@@ -23,12 +23,12 @@
 <body >
 
     <div class="layui-form-item">
-        <div class="layui-inline">
-            <label class="layui-form-label">提取名称</label>
-            <div class="layui-input-block">
-                <input type="text" name="apply_name" maxlength="50"  class="layui-input" placeholder="请填写提取名称" autocomplete="off" />
-            </div>
-        </div>
+        <!--<div class="layui-inline">-->
+            <!--<label class="layui-form-label">提取名称</label>-->
+            <!--<div class="layui-input-block">-->
+                <!--<input type="text" name="apply_name" maxlength="50"  class="layui-input" placeholder="请填写提取名称" autocomplete="off" />-->
+            <!--</div>-->
+        <!--</div>-->
 
         <div class="layui-inline">
             <label class="layui-form-label">公函编号</label>
@@ -48,8 +48,18 @@
             </div>
         </div>
         <div class="layui-inline">
+            <form class="layui-form layui-form-pane" action="">
+                <div class="layui-inline">
+                    <input type="radio" name="apply_status" value="" title="全部"  lay-filter="apply_status" checked>
+                    <input type="radio" name="apply_status" value="1" title="待办" lay-filter="apply_status">
+                    <input type="radio" name="apply_status" value="2" title="已办" lay-filter="apply_status">
+                </div>
+            </form>
+        </div>
+        <div class="layui-inline">
             <button class='layui-btn layui-btn-normal layui-btn-sm' id="search" lay-event='search'>搜索</button>
         </div>
+
     </div>
 
 <table class="layui-hide" id="table" lay-filter="table"></table>
@@ -67,7 +77,8 @@
 </script>
 
 <script>
-    layui.use(['table','laydate'], function(){
+    layui.use(['form','table','laydate'], function(){
+        var form = layui.form;
         var table = layui.table;
         var $ = jQuery = layui.$;
         var laydate = layui.laydate
@@ -143,10 +154,10 @@
                         type: 2,
                         title: "新增提取",
                         shade: [0],
-                        area: ['670px', '500px'],
+                        area: ['670px', '600px'],
                         offset: '2px',
                         anim: 2,
-                        content: [context + 'apply/toAddApply', 'no'], //iframe的url，no代表不显示滚动条
+                        content: [context + 'apply/toAddApply'], //iframe的url，no代表不显示滚动条
                         end: function(){
                             location.reload()
                         }
@@ -184,12 +195,12 @@
                 //弹框修改
                 layer.open({
                     type: 2,
-                    title: "新增修改",
+                    title: "修改",
                     shade: [0],
-                    area: ['670px', '500px'],
+                    area: ['670px', '550px'],
                     offset: '2px',
                     anim: 2,
-                    content: [context + 'apply/toEditApply?apply_id='+data.apply_id, 'no'], //iframe的url，no代表不显示滚动条
+                    content: [context + 'apply/toEditApply?apply_id='+data.apply_id], //iframe的url，no代表不显示滚动条
                     end: function(){
                         location.reload()
                     }
@@ -238,10 +249,10 @@
                     type: 2,
                     title: "查看提取",
                     shade: [0],
-                    area: ['670px', '500px'],
+                    area: ['670px', '550px'],
                     offset: '2px',
                     anim: 2,
-                    content: [context + 'apply/toApplyInfo?apply_id='+data.apply_id, 'no'] //iframe的url，no代表不显示滚动条
+                    content: [context + 'apply/toApplyInfo?apply_id='+data.apply_id] //iframe的url，no代表不显示滚动条
                 });
             }else if(obj.event === "desc_info"){
                 //弹框查看描述
@@ -263,19 +274,43 @@
             var applyNumber = $("input[name='apply_number']").val()
             var insertTimeMin = $("#insert_time_min").val()
             var insertTimeMax = $("#insert_time_max").val()
+            var applyStatus = $("input[name='apply_status']:checked").val()
             table.reload("table",{
                 method:"post",
                 where:{
                     apply_name :applyName,
                     apply_number:applyNumber,
                     insert_time_min : insertTimeMin,
-                    insert_time_max: insertTimeMax
+                    insert_time_max: insertTimeMax,
+                    apply_status:applyStatus
                 },
                 page:{
                     curr:1
                 }
             })
         })
+
+        form.on("radio(apply_status)",function (data) {
+            var applyStatus = data.value
+            var applyName = $("input[name='apply_name']").val()
+            var applyNumber = $("input[name='apply_number']").val()
+            var insertTimeMin = $("#insert_time_min").val()
+            var insertTimeMax = $("#insert_time_max").val()
+            table.reload("table",{
+                method:"post",
+                where:{
+                    apply_name :applyName,
+                    apply_number:applyNumber,
+                    insert_time_min : insertTimeMin,
+                    insert_time_max: insertTimeMax,
+                    apply_status:applyStatus
+                },
+                page:{
+                    curr:1
+                }
+            })
+        })
+
     });
 </script>
 </body>

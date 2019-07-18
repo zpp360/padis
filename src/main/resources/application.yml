@@ -22,6 +22,9 @@ spring:
     username: root
     password: root
 
+  devtools:
+    restart:
+      enabled: true
 #Thymeleaf
   thymeleaf:
     prefix: classpath:/templates
@@ -33,7 +36,6 @@ spring:
     static-locations: classpath:/resources/,classpath:/static/
   mvc:
     #访问路径
-    static-path-pattern: /static/**
   #上传限制
   servlet:
     multipart:

@@ -25,7 +25,10 @@
         <if test="insert_time_max != null and insert_time_max != ''">
             and t.insert_time <![CDATA[ < ]]> #{insert_time_max}
         </if>
-        order by t.apply_status asc,t.update_time desc
+        <if test="apply_status != null and apply_status != ''">
+            and t.apply_status = #{apply_status}
+        </if>
+        order by t.insert_time desc
         limit ${start},${page_size}
     </select>
 
@@ -52,6 +55,9 @@
         <if test="insert_time_max != null and insert_time_max != ''">
             and t.insert_time <![CDATA[ < ]]> #{insert_time_max}
         </if>
+        <if test="apply_status != null and apply_status != ''">
+            and t.apply_status = #{apply_status}
+        </if>
     </select>
 
     <insert id="saveApply" parameterType="pd">
@@ -61,6 +67,10 @@
           apply_user,
           user_number,
           apply_number,
+          user_number_file_name1,
+          user_number_file_name2,
+          user_number_file_path1,
+          user_number_file_path2,
           certify_file_name,
           certify_file_path,
           apply_desc,
@@ -78,6 +88,10 @@
           #{apply_user},
           #{user_number},
           #{apply_number},
+          #{user_number_file_name1},
+          #{user_number_file_name2},
+          #{user_number_file_path1},
+          #{user_number_file_path2},
           #{certify_file_name},
           #{certify_file_path},
           #{apply_desc},
@@ -126,6 +140,10 @@
           apply_user =#{apply_user},
           user_number=#{user_number},
           apply_number=#{apply_number},
+          user_number_file_name1 = #{user_number_file_name1},
+          user_number_file_name2 = #{user_number_file_name2},
+          user_number_file_path1 = #{user_number_file_path1},
+          user_number_file_path2 = #{user_number_file_path2},
           certify_file_name=#{certify_file_name},
           certify_file_path=#{certify_file_path},
           apply_desc=#{apply_desc},
