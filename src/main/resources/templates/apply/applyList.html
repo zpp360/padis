@@ -47,12 +47,12 @@
                 <input type="text" id="insert_time_max" name="insert_time_max" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
             </div>
         </div>
-        <div class="layui-inline">
+        <div class="layui-inline" th:if="${user.userRole eq '1' or user.userRole eq '3'}">
             <form class="layui-form layui-form-pane" action="">
                 <div class="layui-inline">
-                    <input type="radio" name="apply_status" value="" title="全部"  lay-filter="apply_status" checked>
-                    <input type="radio" name="apply_status" value="1" title="待办" lay-filter="apply_status">
-                    <input type="radio" name="apply_status" value="2" title="已办" lay-filter="apply_status">
+                    <input type="radio" name="search_status" value="" title="全部"  lay-filter="search_status" checked>
+                    <input type="radio" name="search_status" value="1" title="待办" lay-filter="search_status">
+                    <input type="radio" name="search_status" value="5" title="已办" lay-filter="search_status">
                 </div>
             </form>
         </div>
@@ -110,18 +110,22 @@
                         return ''
                     }}
                     ,{field:'apply_status', title:'提取状态', align:'center',  templet: function (res) {
-                        if(res.apply_status == '0'){
+                        if(res.apply_status == '1'){
                             return "<button class='layui-btn layui-btn-normal layui-btn-xs' lay-event='apply_send'>待发送</button>"
                         }
-                        if(res.apply_status=='1'){
-                            if(userRole==1){
-                                return "<button class='layui-btn layui-btn-primary layui-btn-xs'>待处理</button>"
-                            }
-                            if(userRole==2){
-                                return "<button class='layui-btn layui-btn-normal layui-btn-xs' lay-event='apply_status'>待处理</button>"
-                            }
-                        }
                         if(res.apply_status=='2'){
+                            return "<button class='layui-btn layui-btn-primary layui-btn-xs'>审核中</button>"
+                        }
+                        if(userRole=='3' && res.apply_status=='3'){
+                            return "<button class='layui-btn layui-btn-normal layui-btn-xs' lay-event='apply_status'>待处理</button>"
+                        }
+                        if(userRole=='1' && res.apply_status=='3'){
+                            return "<button class='layui-btn layui-btn-primary layui-btn-xs'>待处理</button>"
+                        }
+                        if(res.apply_status=='4'){
+                            return "<button class='layui-btn layui-btn-normal layui-btn-xs'>退回</button>"
+                        }
+                        if(res.apply_status=='5'){
                             return "<button class='layui-btn layui-btn-warm layui-btn-xs' lay-event='apply_has_deal'>已处理,下载回执</button>"
                         }
                     }}
@@ -133,10 +137,19 @@
                         }
                         var delBtn = '<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>';
                         var editBtn = '<a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>';
-                        if(userRole=='1' && res.apply_status == '0'){
+                        var infoBtn = "";
+                        if(userRole == '1' || userRole=='3'){
+                            //如果是客户端和账务中心显示详情
+                            infoBtn ='<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="info">详情</a>'
+                        }
+                        if(userRole == '2'){
+                            infoBtn ='<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="info">审核</a>'
+                        }
+                        if(userRole=='1' && (res.apply_status == '1' || res.apply_status == '4')){
+                            //只有客户端在保存状态和退回状态下可以删除
                             return downloadBtn + editBtn + delBtn
                         }else{
-                            return downloadBtn + '<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="info">详情</a>' + delBtn
+                            return downloadBtn + infoBtn
                         }
                     }}
                  ]
@@ -159,7 +172,7 @@
                         anim: 2,
                         content: [context + 'apply/toAddApply'], //iframe的url，no代表不显示滚动条
                         end: function(){
-                            location.reload()
+                            location.reload(true)
                         }
                     });
                     break;
@@ -185,7 +198,7 @@
                         success: function (msg) {
                             layer.msg("删除成功");
                             setInterval(function () {
-                                location.reload()
+                                location.reload(true)
                             },1500)
                         }
                     });
@@ -202,7 +215,7 @@
                     anim: 2,
                     content: [context + 'apply/toEditApply?apply_id='+data.apply_id], //iframe的url，no代表不显示滚动条
                     end: function(){
-                        location.reload()
+                        location.reload(true)
                     }
                 });
             }else if(obj.event === 'apply_status'){
@@ -216,7 +229,7 @@
                     anim: 2,
                     content: [context + 'apply/toDealApply?apply_id='+data.apply_id, 'no'], //iframe的url，no代表不显示滚动条
                     end: function(){ //此处用于演示
-                        location.reload()
+                        location.reload(true)
                     }
                 });
             }else if(obj.event === 'apply_send'){
@@ -229,7 +242,7 @@
                         success: function (msg) {
                             if("success"==msg){
                                 layer.msg("发送成功",{icon:6})
-                                location.reload();
+                                location.reload(true);
                             }else{
                                 layer.msg(msg,{icon:5});
                             }
@@ -252,7 +265,10 @@
                     area: ['670px', '550px'],
                     offset: '2px',
                     anim: 2,
-                    content: [context + 'apply/toApplyInfo?apply_id='+data.apply_id] //iframe的url，no代表不显示滚动条
+                    content: [context + 'apply/toApplyInfo?apply_id='+data.apply_id], //iframe的url，no代表不显示滚动条
+                    end: function(){ //此处用于演示
+                        location.reload(true)
+                    }
                 });
             }else if(obj.event === "desc_info"){
                 //弹框查看描述
@@ -274,7 +290,7 @@
             var applyNumber = $("input[name='apply_number']").val()
             var insertTimeMin = $("#insert_time_min").val()
             var insertTimeMax = $("#insert_time_max").val()
-            var applyStatus = $("input[name='apply_status']:checked").val()
+            var searchStatus = $("input[name='search_status']:checked").val()
             table.reload("table",{
                 method:"post",
                 where:{
@@ -282,7 +298,7 @@
                     apply_number:applyNumber,
                     insert_time_min : insertTimeMin,
                     insert_time_max: insertTimeMax,
-                    apply_status:applyStatus
+                    search_status:searchStatus
                 },
                 page:{
                     curr:1
@@ -290,8 +306,8 @@
             })
         })
 
-        form.on("radio(apply_status)",function (data) {
-            var applyStatus = data.value
+        form.on("radio(search_status)",function (data) {
+            var searchStatus = data.value
             var applyName = $("input[name='apply_name']").val()
             var applyNumber = $("input[name='apply_number']").val()
             var insertTimeMin = $("#insert_time_min").val()
@@ -303,7 +319,7 @@
                     apply_number:applyNumber,
                     insert_time_min : insertTimeMin,
                     insert_time_max: insertTimeMax,
-                    apply_status:applyStatus
+                    search_status:searchStatus
                 },
                 page:{
                     curr:1

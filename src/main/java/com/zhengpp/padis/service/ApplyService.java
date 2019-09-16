@@ -73,4 +73,11 @@ public class ApplyService {
     public void updateApply(PageData pd) throws Exception {
         dao.update("ApplyMapper.updateApply",pd);
     }
+
+    /**
+     * 更新状态
+     */
+    public void updateStatus(PageData pd) throws Exception {
+        dao.update("ApplyMapper.updateStatus",pd);
+    }
 }

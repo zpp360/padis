@@ -16,6 +16,7 @@
         .layui-upload-img{
             width: 100px;
             height: auto;
+            max-height: 130px;
         }
     </style>
 </head>
@@ -111,6 +112,8 @@
     </div>
     <div class="layui-form-item">
         <div class="layui-input-block">
+            <button th:if="${user.userRole eq '2'}" type="button" class="layui-btn layui-btn-danger check_back" lay-filter="check_back">退回</button>
+            <button th:if="${user.userRole eq '2'}" type="button" class="layui-btn layui-btn-normal check_pass" lay-filter="check_pass">通过</button>
             <button type="button" class="layui-btn layui-btn-primary close">关闭</button>
         </div>
     </div>
@@ -120,6 +123,7 @@
 <script th:src="@{/static/plugins/layui/layui.js}"></script>
 <script th:inline="javascript">
     var context = [[@{/}]];
+    var applyFilePath = [[${pd.apply_file_path}]]
 </script>
 <script>
     layui.use(['jquery', 'form'], function(){
@@ -137,7 +141,7 @@
         $("#certify_file_name").text(name+ext)
 
         //隐藏显示开关
-        if($("input[name='apply_file_path']").val()!=''){
+        if(applyFilePath != ''){
             $(".apply_desc").hide()
             $(".apply_file_upload").show()
         }else{
@@ -158,6 +162,8 @@
             }
         });
 
+        form.on()
+
         $(".close").click(function () {
             //当你在iframe页面关闭自身时
             var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
@@ -165,7 +171,7 @@
         })
 
         $("#user_number_file_name1,#user_number_file_name2").click(function () {
-            var json = {"title": "警员证", "id": 123, "start": 0,  "data": [   { "alt": "警员证2", "pid": 666,  "src": $("#user_number_file_name1").attr("src"),  "thumb": ""  },{ "alt": "警员证1", "pid": 777,  "src": $("#user_number_file_name2").attr("src"),  "thumb": ""  }] }
+            var json = {"title": "警员证", "id": 123, "start": 0,  "data": [   { "alt": "警员证1", "pid": 666,  "src": $("#user_number_file_name1").attr("src"),  "thumb": ""  },{ "alt": "警员证2", "pid": 777,  "src": $("#user_number_file_name2").attr("src"),  "thumb": ""  }] }
             layer.photos({
                 photos: json
                 ,anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
@@ -176,6 +182,53 @@
         $("#upload_desc").click(function () {
             var applyId = $("input[name='apply_id']").val();
             location.href = context + "apply/downloadApplyDesc?apply_id="+applyId
+        })
+        //退回
+        $(".check_back").click(function(){
+            console.log("退回")
+            var applyId = $("input[name='apply_id']").val();
+            layer.confirm('确定要退回吗？', function(index){
+                $.ajax({
+                    url: context + "apply/checkBack",
+                    type: "post",
+                    data: {"apply_id":applyId},
+                    success: function (msg) {
+                        if("success"==msg){
+                            layer.msg("退回成功",{icon:6})
+                        }else{
+                            layer.msg(msg,{icon:5});
+                        }
+                    }
+                });
+                layer.close(index);
+            });
+            setTimeout(function () {
+                $(".close").click()
+            },'2000')
+        })
+
+        //审核通过
+        $(".check_pass").click(function(){
+            console.log("通过")
+            var applyId = $("input[name='apply_id']").val();
+            layer.confirm('确定审核通过吗？', function(index){
+                $.ajax({
+                    url: context + "apply/checkPass",
+                    type: "post",
+                    data: {"apply_id":applyId},
+                    success: function (msg) {
+                        if("success"==msg){
+                            layer.msg("审核成功",{icon:6})
+                        }else{
+                            layer.msg(msg,{icon:5});
+                        }
+                    }
+                });
+                layer.close(index);
+                setTimeout(function () {
+                    $(".close").click()
+                },'2000')
+            });
         })
     });
 

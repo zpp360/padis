@@ -14,7 +14,7 @@ public class WebConfigurer implements WebMvcConfigurer {
     @Autowired
     private LoginInterceptor loginInterceptor;
 
-    private static final String[] excludePath = new String[]{"/static/**","/error","/toLogin","/login","login.html","/logout","/upload"};
+    private static final String[] excludePath = new String[]{"/static/**","/error","/toLogin","/login","login.html","/logout","/upload","/manual"};
     /**
      * 注册拦截器
      * @param registry

@@ -49,6 +49,10 @@ mybatis:
   config-location: classpath:mybatis-config.xml
   mapper-locations: classpath:mybatis/*.xml
 
+netty:
+  url: 127.0.0.1
+  port: 8888
+
 
 
 

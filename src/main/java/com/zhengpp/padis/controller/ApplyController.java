@@ -56,7 +56,7 @@ public class ApplyController extends BaseController{
         User user = (User) subject.getPrincipal();
         pd.put("user_role",user.getUserRole());
         if("1".equals(user.getUserRole())){
-            //公安列表，只查看自己发布的
+            //客户端列表，只查看自己发布的
             pd.put("insert_user",user.getUserId());
         }
         List<PageData> list = applyService.listPage(pd);
@@ -87,6 +87,9 @@ public class ApplyController extends BaseController{
     @RequestMapping("/toApplyInfo")
     public ModelAndView toApplyInfo(@RequestParam(value = "apply_id") String applyId) throws Exception {
         ModelAndView mv = new ModelAndView();
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        mv.addObject("user",user);
         PageData pd = applyService.findById(applyId);
         mv.addObject("pd",pd);
         mv.setViewName("/apply/applyInfo");
@@ -153,6 +156,39 @@ public class ApplyController extends BaseController{
     }
 
     /**
+     * 综合部审核退回
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/checkBack")
+    public String checkBack() throws Exception {
+        PageData pd = this.getPageData();
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        pd.put("apply_status","4");
+        pd.put("update_user",user.getUserId());
+        applyService.updateStatus(pd);
+        return "success";
+    }
+
+    /**
+     * 综合部审核通过
+     * @return
+     * @throws Exception
+     */
+    @ResponseBody
+    @RequestMapping("/checkPass")
+    public String checkPass() throws Exception {
+        PageData pd = this.getPageData();
+        Subject subject = SecurityUtils.getSubject();
+        User user = (User) subject.getPrincipal();
+        pd.put("apply_status","3");
+        pd.put("update_user",user.getUserId());
+        applyService.updateStatus(pd);
+        return "success";
+    }
+
+    /**
      * 删除提取
      * @return
      * @throws Exception
@@ -185,7 +221,7 @@ public class ApplyController extends BaseController{
         Subject subject = SecurityUtils.getSubject();
         User user = (User) subject.getPrincipal();
         pd.put("update_user",user.getUserId());
-        pd.put("apply_status","1");
+        pd.put("apply_status","2");
         applyService.updateApply(pd);
         return "success";
     }

@@ -1,6 +1,5 @@
 package com.zhengpp.padis.base;
 
-import com.zhengpp.padis.controller.ApplyController;
 import com.zhengpp.padis.entity.PageData;
 import com.zhengpp.padis.utils.UUIDUtil;
 import org.apache.commons.lang3.StringUtils;

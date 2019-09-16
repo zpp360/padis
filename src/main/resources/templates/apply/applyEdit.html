@@ -16,6 +16,7 @@
         .layui-upload-img{
             width: 100px;
             height: auto;
+            max-height: 130px;
         }
     </style>
 </head>
@@ -41,7 +42,7 @@
         <div class="layui-inline">
             <label class="layui-form-label">警员编号</label>
             <div class="layui-input-block">
-                <input type="text" name="user_number" maxlength="20" th:value="${pd.user_number}"  lay-verify="user_number" placeholder="" autocomplete="off" class="layui-input">
+                <input type="text" name="user_number" maxlength="50" th:value="${pd.user_number}"  lay-verify="user_number" placeholder="" autocomplete="off" class="layui-input">
             </div>
         </div>
 
@@ -325,12 +326,12 @@
         });
         //监听保存并提取提交
         form.on('submit(saveAndApply)', function(data){
-            $("input[name='apply_status']").val("1")
+            $("input[name='apply_status']").val("2")
             form.submit();
         });
         //监听仅保存提交
         form.on('submit(save)', function(data){
-            $("input[name='apply_status']").val("0")
+            $("input[name='apply_status']").val("1")
             form.submit();
             return true;
         });

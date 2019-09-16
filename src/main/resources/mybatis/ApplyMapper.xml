@@ -7,9 +7,15 @@
           *
         from m_apply t
         where t.del_flag = '0'
+        <!--综合部审核,只查看带审核状态的，处理完的不让看-->
         <if test='user_role == "2"'>
-            and t.apply_status in ('1','2')
+            and t.apply_status = '2'
         </if>
+        <!--账目中心 3账目中心待处理5处理完成 -->
+        <if test='user_role == "3"'>
+            and t.apply_status in ('3','5')
+        </if>
+        <!--客户端查看自己的数据-->
         <if test="insert_user != null and insert_user != ''">
             and t.insert_user = #{insert_user}
         </if>
@@ -25,8 +31,11 @@
         <if test="insert_time_max != null and insert_time_max != ''">
             and t.insert_time <![CDATA[ < ]]> #{insert_time_max}
         </if>
-        <if test="apply_status != null and apply_status != ''">
-            and t.apply_status = #{apply_status}
+        <if test='search_status == "5"'>
+            and t.apply_status = '5'
+        </if>
+        <if test='search_status == "1"'>
+            and t.apply_status in ('1','2','3','4')
         </if>
         order by t.insert_time desc
         limit ${start},${page_size}
@@ -37,9 +46,15 @@
           count(1)
         from m_apply t
         where t.del_flag = '0'
+        <!--综合部审核,只查看带审核状态的，处理完的不让看-->
         <if test='user_role == "2"'>
-            and t.apply_status in ('1','2')
+            and t.apply_status = '2'
         </if>
+        <!--账目中心 3账目中心待处理5处理完成 -->
+        <if test='user_role == "3"'>
+            and t.apply_status in ('3','5')
+        </if>
+        <!--客户端查看自己的数据-->
         <if test="insert_user != null and insert_user != ''">
             and t.insert_user = #{insert_user}
         </if>
@@ -55,8 +70,11 @@
         <if test="insert_time_max != null and insert_time_max != ''">
             and t.insert_time <![CDATA[ < ]]> #{insert_time_max}
         </if>
-        <if test="apply_status != null and apply_status != ''">
-            and t.apply_status = #{apply_status}
+        <if test='search_status == "5"'>
+            and t.apply_status = '5'
+        </if>
+        <if test='search_status == "1"'>
+            and t.apply_status in ('1','2','3','4')
         </if>
     </select>
 
@@ -110,7 +128,7 @@
         update m_apply set
           apply_deal_file_name = #{apply_deal_file_name},
           apply_deal_file_path = #{apply_deal_file_path},
-          apply_status = '2'
+          apply_status = '5'
         where apply_id = #{apply_id}
 
     </update>
@@ -154,5 +172,13 @@
           update_time = now()
         where apply_id = #{apply_id}
 
+    </update>
+    
+    <update id="updateStatus" parameterType="pd">
+        update m_apply set
+          apply_status = #{apply_status},
+          update_user = #{update_user},
+          update_time = now()
+        where apply_id = #{apply_id}
     </update>
 </mapper>
