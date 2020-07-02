@@ -112,8 +112,8 @@
     </div>
     <div class="layui-form-item">
         <div class="layui-input-block">
-            <button th:if="${user.userRole eq '2'}" type="button" class="layui-btn layui-btn-danger check_back" lay-filter="check_back">退回</button>
-            <button th:if="${user.userRole eq '2'}" type="button" class="layui-btn layui-btn-normal check_pass" lay-filter="check_pass">通过</button>
+            <button th:if="${user.userRole eq '2' || user.userRole eq '3'}" type="button" class="layui-btn layui-btn-danger check_back" lay-filter="check_back">退回</button>
+            <button th:if="${user.userRole eq '2' || user.userRole eq '3'}" type="button" class="layui-btn layui-btn-normal check_pass" lay-filter="check_pass">通过</button>
             <button type="button" class="layui-btn layui-btn-primary close">关闭</button>
         </div>
     </div>

@@ -20,13 +20,14 @@ public class ManualController extends BaseController {
 
     @RequestMapping("/config")
     @ResponseBody
-    public Map config(){
+    public String config(){
         Map map = new HashMap();
         map.put("temperature_gap", Constants.temperature_gap);
-        map.put("localhost",ChannelMap.get("192.168.2.199"));
-        Channel channel =  ChannelMap.get("192.168.2.199");
+        map.put("localhost",ChannelMap.findChannel("192.168.0.119"));
+        Channel channel =  ChannelMap.findChannel("192.168.0.119");
         channel.writeAndFlush("hello,server主动给你发消息啦");
-        return map;
+        //ChannelMap.sendToAll("hello i am server");
+        return "";
     }
 
 }

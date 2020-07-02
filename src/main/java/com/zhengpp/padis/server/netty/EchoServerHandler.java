@@ -57,12 +57,12 @@ public class EchoServerHandler extends ChannelInboundHandlerAdapter {
         System.out.println("localAddress:"+ ctx.channel().localAddress());
         System.out.println("remoteAddress:" + ctx.channel().remoteAddress());
         System.out.println(getIP(ctx));
-        ChannelMap.put(getIP(ctx),getChannel(ctx));
+        ChannelMap.addChannel(getIP(ctx),getChannel(ctx));
     }
 
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         //将channel在Map中移除
-        ChannelMap.remove(getIP(ctx));
+        ChannelMap.removeChannel(getIP(ctx));
     }
 
     /**

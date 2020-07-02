@@ -13,7 +13,7 @@
         </if>
         <!--账目中心 3账目中心待处理5处理完成 -->
         <if test='user_role == "3"'>
-            and t.apply_status in ('3','5')
+            and t.apply_status in ('2','3','5')
         </if>
         <!--客户端查看自己的数据-->
         <if test="insert_user != null and insert_user != ''">

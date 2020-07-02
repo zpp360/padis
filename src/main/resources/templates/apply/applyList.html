@@ -142,7 +142,7 @@
                             //如果是客户端和账务中心显示详情
                             infoBtn ='<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="info">详情</a>'
                         }
-                        if(userRole == '2'){
+                        if(userRole == '2' || userRole=='3'){
                             infoBtn ='<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="info">审核</a>'
                         }
                         if(userRole=='1' && (res.apply_status == '1' || res.apply_status == '4')){

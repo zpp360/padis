@@ -8,6 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.string.StringEncoder;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -42,13 +43,14 @@ public class NettyServer implements  Runnable{
     @Override
     public void run() {
         final EchoServerHandler serverHandler = new EchoServerHandler();
+        final OutServerHandler outServerHandler = new OutServerHandler();
         ChannelFuture f = null;
         try {
             //ServerBootstrap负责初始化netty服务器，并且开始监听端口的socket请求
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .localAddress(new InetSocketAddress("192.168.1.138",2000))
+                    .localAddress(new InetSocketAddress("192.168.1.105",2000))
                     .option(ChannelOption.SO_SNDBUF, 16*1024)
                     .option(ChannelOption.SO_RCVBUF, 16*1024)
                     .option(ChannelOption.SO_KEEPALIVE, true)
@@ -57,9 +59,10 @@ public class NettyServer implements  Runnable{
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
 //                            为监听客户端read/write事件的Channel添加用户自定义的ChannelHandler
                             socketChannel.pipeline().
-                                    addLast(new HexEncoder()).
                                     addLast(new HexDecoder()).
-                                    addLast(serverHandler);
+                                    addLast(new StringEncoder()).
+                                    addLast(serverHandler).
+                                    addLast(outServerHandler);
                         }
                     });
 
